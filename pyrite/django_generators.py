@@ -3,7 +3,7 @@ import copy
 from pyrite.generators import (BaseGenerator, UsernameGenerator, SimplePasswordGenerator,
         EmailAddressGenerator, BigIntegerGenerator, TrueGenerator,
         RandomBooleanGenerator, SingleLineTextGenerator,
-        CurrentDatetimeGenerator, RandomIntegerGenerator,)
+        CurrentDateTimeGenerator, RandomIntegerGenerator, CurrentDateGenerator)
 
 
 class ModelGenerator(BaseGenerator):
@@ -55,7 +55,7 @@ class ModelGenerator(BaseGenerator):
                 # TODO: max_length and min_length
                 return SingleLineTextGenerator
         elif isinstance(field, models.DateField):
-            raise NotImplementedError("Have not implemented DateGenerator")
+            return CurrentDateGenerator
         elif isinstance(field, models.DateTimeField):
             if field.auto_now or field.auto_now_add:
                 return None

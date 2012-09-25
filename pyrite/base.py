@@ -197,4 +197,19 @@ class DateTimeGenerator(BaseGenerator):
     def inner_generator(self):
         while True:
             delta = self.get_max_datetime() - self.get_min_datetime()
-            return self.min_datetime + datetime.timedelta(random.randrange(delta.total_seconds()))
+            seconds = int(delta.total_seconds())
+            yield self.min_datetime + datetime.timedelta(seconds=random.randrange(seconds))
+
+
+class CoercionGenerator(BaseGenerator):
+    generator_class = None
+
+    def coerce_value(self, value):
+        raise NotImplementedError('Subclasses of CoercionGenerator must implement a `coerce_value` method')
+
+    def inner_generator(self):
+        if self.generator_class is None:
+            raise NotImplementedError('Subclasses of CoercionGenerator must define a `generator_class`')
+        generator = self.generator_class()
+        for value in generator:
+            yield self.coerce_value(value)

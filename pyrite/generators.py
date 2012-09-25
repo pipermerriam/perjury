@@ -3,7 +3,7 @@ import datetime
 
 from pyrite.base import (BaseGenerator, WordGenerator, MultiGenerator,
         RepeatValueGenerator, IntegerGenerator, RandomChoiceGenerator,
-        DateTimeGenerator)
+        DateTimeGenerator, CoercionGenerator)
 from pyrite.content import (MALE_NAMES, FEMALE_NAMES, LAST_NAMES, FIRST_NAMES,
         WORD_LIST, USERNAMES)
 
@@ -171,7 +171,7 @@ class RandomIntegerGenerator(IntegerGenerator):
     pass
 
 
-class CurrentDatetimeGenerator(DateTimeGenerator):
+class CurrentDateTimeGenerator(DateTimeGenerator):
     delta_days = 30
 
     def get_min_datetime(self):
@@ -179,3 +179,13 @@ class CurrentDatetimeGenerator(DateTimeGenerator):
 
     def get_max_datetime(self):
         return datetime.datetime.now() + datetime.timedelta(days=self.delta_days)
+
+
+class CurrentDateGenerator(CoercionGenerator):
+    """
+    Generates dates within ``delta_days`` of datetime.datetime.now()
+    """
+    generator_class = CurrentDateTimeGenerator
+
+    def coerce_value(self, value):
+        return value.date
