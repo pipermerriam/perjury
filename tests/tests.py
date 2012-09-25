@@ -3,7 +3,8 @@ import unittest
 from pyrite.generators import (WordGenerator, FirstNameGenerator,
         MaleNameGenerator, FemaleNameGenerator, LastNameGenerator,
         FullNameGenerator, SingleLineTextGenerator, TitleGenerator,
-        RepeatValueGenerator, RandomIntegerGenerator, OrderedIntegerGenerator)
+        RepeatValueGenerator, RandomIntegerGenerator, OrderedIntegerGenerator,
+        TrueGenerator, FalseGenerator, RandomBooleanGenerator)
 
 
 class TestNameGenerators(unittest.TestCase):
@@ -105,6 +106,24 @@ class IntegerGeneratorTest(unittest.TestCase):
         g = TestGenerator(100)
         for i, j in enumerate(g):
             self.assertEqual(i % 20, j)
+
+
+class TrueGeneratorTest(unittest.TestCase):
+    def test_basic_generator(self):
+        g = TrueGenerator(20)
+        self.assertTrue(all([val for val in g]))
+
+
+class FalseGeneratorTest(unittest.TestCase):
+    def test_basic_generator(self):
+        g = FalseGenerator(20)
+        self.assertTrue(all([not val for val in g]))
+
+
+class BooleanGeneratorTest(unittest.TestCase):
+    def test_basic_generator(self):
+        g = RandomBooleanGenerator(20)
+        self.assertTrue(all([val in g.values for val in g]))
 
 if __name__ == '__main__':
         unittest.main()

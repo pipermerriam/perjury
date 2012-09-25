@@ -1,7 +1,9 @@
 import random
+import datetime
 
 from pyrite.base import (BaseGenerator, WordGenerator, MultiGenerator,
-        RepeatValueGenerator, IntegerGenerator)
+        RepeatValueGenerator, IntegerGenerator, RandomChoiceGenerator,
+        DateTimeGenerator)
 from pyrite.content import (MALE_NAMES, FEMALE_NAMES, LAST_NAMES, FIRST_NAMES,
         WORD_LIST, USERNAMES)
 
@@ -108,6 +110,27 @@ class SimplePasswordGenerator(RepeatValueGenerator):
     value = 'arstarst'
 
 
+class TrueGenerator(RepeatValueGenerator):
+    """
+    Generates ``True`` until termination
+    """
+    value = True
+
+
+class FalseGenerator(RepeatValueGenerator):
+    """
+    Generates ``False`` until termination
+    """
+    value = False
+
+
+class RandomBooleanGenerator(RandomChoiceGenerator):
+    """
+    Returns ``True`` or ``False`` randomly
+    """
+    values = [True, False]
+
+
 class GmailGenerator(RepeatValueGenerator):
     value = 'gmail'
 
@@ -132,9 +155,27 @@ class OrderedIntegerGenerator(IntegerGenerator):
     shuffle = False
 
 
+class BigIntegerGenerator(IntegerGenerator):
+    """
+    Generates 64-bit integers between -9223372036854775808 and 9223372036854775807
+    """
+    lower_bound = -9223372036854775808
+    upper_bound = 9223372036854775807
+
+
 class RandomIntegerGenerator(IntegerGenerator):
     """
     Returns random integers over the range ``self.lower_bound``,
     ``self.upper_bound``, repeating until termination
     """
     pass
+
+
+class CurrentDatetimeGenerator(DateTimeGenerator):
+    delta_days = 30
+
+    def get_min_datetime(self):
+        return datetime.datetime.now() - datetime.timedelta(days=self.delta_days)
+
+    def get_max_datetime(self):
+        return datetime.datetime.now() + datetime.timedelta(days=self.delta_days)

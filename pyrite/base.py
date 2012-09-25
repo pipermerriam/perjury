@@ -1,5 +1,6 @@
 import random
 import copy
+import datetime
 
 from itertools import repeat
 
@@ -165,3 +166,35 @@ class IntegerGenerator(BaseGenerator):
             else:
                 for i in xrange(self.lower_bound, self.upper_bound):
                     yield i
+
+
+class RandomChoiceGenerator(BaseGenerator):
+    """
+    Generates a random choice from a pre-defined list of choices.
+    """
+    unique = False
+    values = []
+
+    def inner_generator(self):
+        while True:
+            yield random.choice(self.values)
+
+
+class DateTimeGenerator(BaseGenerator):
+    """
+    Base class for date generation.
+    """
+    # TODO: make shuffle do something.  Equally spaced ordered dates possibly?
+    min_datetime = datetime.datetime.min
+    max_datetime = datetime.datetime.max
+
+    def get_min_datetime(self):
+        return self.min_datetime
+
+    def get_max_datetime(self):
+        return self.max_datetime
+
+    def inner_generator(self):
+        while True:
+            delta = self.get_max_datetime() - self.get_min_datetime()
+            return self.min_datetime + datetime.timedelta(random.randrange(delta.total_seconds()))
