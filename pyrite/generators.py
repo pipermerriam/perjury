@@ -1,9 +1,3 @@
-"""
-Future plans
-
-1. Ability to randomize a generators return values.
-2. Enforce Uniqueness across results.
-"""
 import random
 
 from pyrite.base import (BaseGenerator, WordGenerator, MultiGenerator,
