@@ -1,9 +1,9 @@
 import unittest
 
-from pyrite.generators import (WordGenerator, NameGenerator,
+from pyrite.generators import (WordGenerator, FirstNameGenerator,
         MaleNameGenerator, FemaleNameGenerator, LastNameGenerator,
         FullNameGenerator, SingleLineTextGenerator, TitleGenerator,
-        RepeatValueGenerator)
+        RepeatValueGenerator, RandomIntegerGenerator, OrderedIntegerGenerator)
 
 
 class TestNameGenerators(unittest.TestCase):
@@ -18,6 +18,7 @@ class TestNameGenerators(unittest.TestCase):
 
     def test_base_name_generator_slicing(self):
         class BasicWordGenerator(WordGenerator):
+            shuffle = False
             words = self.names
         g = BasicWordGenerator()
         names = g[1:3]
@@ -25,6 +26,7 @@ class TestNameGenerators(unittest.TestCase):
 
     def test_base_name_generator_custom_length(self):
         class BasicWordGenerator(WordGenerator):
+            shuffle = False
             words = self.names
         g = BasicWordGenerator(2)
         self.assertEqual(len(g), 2)
@@ -33,7 +35,7 @@ class TestNameGenerators(unittest.TestCase):
         self.assertEqual(names, self.names[:2])
 
     def test_name_generator_classes(self):
-        for NameGeneratorClass in [NameGenerator, MaleNameGenerator,
+        for NameGeneratorClass in [FirstNameGenerator, MaleNameGenerator,
                 FemaleNameGenerator, LastNameGenerator]:
             g = NameGeneratorClass()
             self.do_assertions(g)
@@ -86,6 +88,23 @@ class TestTitleGenerator(unittest.TestCase):
         for title in g:
             self.assertEqual(title[0].upper(), title[0])
             self.assertEqual(title[1:].lower(), title[1:])
+
+
+class IntegerGeneratorTest(unittest.TestCase):
+    def test_basic_generator(self):
+        g = RandomIntegerGenerator(100)
+        for i in g:
+            self.assertGreaterEqual(i, g.lower_bound)
+            self.assertLess(i, g.upper_bound)
+
+    def test_ordered_generator(self):
+        class TestGenerator(OrderedIntegerGenerator):
+            lower_bound = 0
+            upper_bound = 20
+
+        g = TestGenerator(100)
+        for i, j in enumerate(g):
+            self.assertEqual(i % 20, j)
 
 if __name__ == '__main__':
         unittest.main()

@@ -7,32 +7,51 @@ Future plans
 import random
 
 from pyrite.base import (BaseGenerator, WordGenerator, MultiGenerator,
-        RepeatValueGenerator)
+        RepeatValueGenerator, IntegerGenerator)
 from pyrite.content import (MALE_NAMES, FEMALE_NAMES, LAST_NAMES, FIRST_NAMES,
         WORD_LIST, USERNAMES)
 
 
-class NameGenerator(WordGenerator):
-    words = FIRST_NAMES
-
-
 class MaleNameGenerator(WordGenerator):
+    """
+    Generates male names from a wordlist of common male names.
+    """
     words = MALE_NAMES
 
 
 class FemaleNameGenerator(WordGenerator):
+    """
+    Generates female names from a wordlist of common female names.
+    """
     words = FEMALE_NAMES
 
 
+class FirstNameGenerator(WordGenerator):
+    """
+    Generates first names from a wordlist of common male and female names.
+    """
+    words = FIRST_NAMES
+
+
 class LastNameGenerator(WordGenerator):
+    """
+    Generates last names from a wordlist of common last names.
+    """
     words = LAST_NAMES
 
 
 class UsernameGenerator(WordGenerator):
+    """
+    Generates usernames from a wordlist of common usernames.
+    """
     words = USERNAMES
 
 
 class FullNameGenerator(BaseGenerator):
+    """
+    Generates 2-tuples of first_name, last_name pairs from a wordlist of common
+    names.
+    """
     first_names = FIRST_NAMES
     last_names = LAST_NAMES
 
@@ -43,7 +62,7 @@ class FullNameGenerator(BaseGenerator):
         if self.unique and not self.size == max_size and self.size > max_size / 4:
             raise RuntimeWarning("FullNameGenerator's performance will degrade at higher iteration counts when set to return unique results")
 
-    def make_generator(self):
+    def inner_generator(self):
         while True:
             if len(self.hashes) == self.size:
                 raise StopIteration
@@ -53,12 +72,16 @@ class FullNameGenerator(BaseGenerator):
 
 
 class SingleLineTextGenerator(BaseGenerator):
+    """
+    Returns single lines of text between ``self.min_length`` and
+    ``self.max_length`` in length.
+    """
     size = 20
     words = WORD_LIST
     max_length = 80
     min_length = 50
 
-    def make_generator(self):
+    def inner_generator(self):
         while True:
             title = ''
             length = random.randint(self.min_length, self.max_length)
@@ -78,8 +101,12 @@ class SingleLineTextGenerator(BaseGenerator):
 
 
 class TitleGenerator(SingleLineTextGenerator):
-    def make_generator(self):
-        for title in super(TitleGenerator, self).make_generator():
+    """
+    Returns the same valus as ``SingleLineTextGenerator`` but with their first
+    letter capitalized.
+    """
+    def inner_generator(self):
+        for title in super(TitleGenerator, self).inner_generator():
             yield title[0].upper() + title[1:]
 
 
@@ -92,8 +119,28 @@ class GmailGenerator(RepeatValueGenerator):
 
 
 class EmailAddressGenerator(MultiGenerator):
+    """
+    Returns gmail addresses using ``UsernameGenerator`` for the username
+    portion of the email address.
+    """
     format_string = '{username}@{domain}.com'
     generator_classes = {
             'username': UsernameGenerator,
             'domain': GmailGenerator,
             }
+
+
+class OrderedIntegerGenerator(IntegerGenerator):
+    """
+    Returns ordered integers over the range ``self.lower_bound``,
+    ``self.upper_bound``, repeating until termination
+    """
+    shuffle = False
+
+
+class RandomIntegerGenerator(IntegerGenerator):
+    """
+    Returns random integers over the range ``self.lower_bound``,
+    ``self.upper_bound``, repeating until termination
+    """
+    pass

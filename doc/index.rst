@@ -7,6 +7,8 @@ Contents:
    :maxdepth: 2
 
    intro
+   base
+   generators
 
 Indices and tables
 ==================
