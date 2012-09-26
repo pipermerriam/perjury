@@ -172,6 +172,9 @@ class RandomIntegerGenerator(IntegerGenerator):
 
 
 class CurrentDateTimeGenerator(DateTimeGenerator):
+    """
+    Generates datetimes within a certain range of the current time.
+    """
     delta_days = 30
 
     def get_min_datetime(self):
@@ -183,7 +186,7 @@ class CurrentDateTimeGenerator(DateTimeGenerator):
 
 class CurrentDateGenerator(CoercionGenerator):
     """
-    Generates dates within ``delta_days`` of datetime.datetime.now()
+    Generates dates within a certain range of the current time.
     """
     generator_class = CurrentDateTimeGenerator
 
