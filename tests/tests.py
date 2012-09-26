@@ -1,10 +1,12 @@
 import unittest
+import re
 
 from foundry.generators import (WordGenerator, FirstNameGenerator,
         MaleNameGenerator, FemaleNameGenerator, LastNameGenerator,
         FullNameGenerator, SingleLineTextGenerator, TitleGenerator,
         RepeatValueGenerator, RandomIntegerGenerator, OrderedIntegerGenerator,
-        TrueGenerator, FalseGenerator, RandomBooleanGenerator)
+        TrueGenerator, FalseGenerator, RandomBooleanGenerator,
+        GmailAddressGenerator)
 
 
 class TestNameGenerators(unittest.TestCase):
@@ -124,6 +126,16 @@ class BooleanGeneratorTest(unittest.TestCase):
     def test_basic_generator(self):
         g = RandomBooleanGenerator(20)
         self.assertTrue(all([val in g.values for val in g]))
+
+
+class GmailAddressGeneratorTest(unittest.TestCase):
+    is_gmail_address = re.compile(r'^[_.0-9a-z-]+@gmail\.com$')
+
+    def test_basic_generator(self):
+        g = GmailAddressGenerator(20)
+        for e in g:
+            self.assertTrue(re.match(e))
+
 
 if __name__ == '__main__':
         unittest.main()

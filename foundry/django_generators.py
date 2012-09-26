@@ -1,9 +1,12 @@
 import copy
 
-from foundry.generators import (BaseGenerator, UsernameGenerator, SimplePasswordGenerator,
-        EmailAddressGenerator, BigIntegerGenerator, TrueGenerator,
+from django.db import models
+
+from foundry.generators import (BaseGenerator, UsernameGenerator,
+        GmailAddressGenerator, BigIntegerGenerator, TrueGenerator,
         RandomBooleanGenerator, SingleLineTextGenerator,
-        CurrentDateTimeGenerator, RandomIntegerGenerator, CurrentDateGenerator)
+        CurrentDateTimeGenerator, RandomIntegerGenerator, CurrentDateGenerator,
+        FirstNameGenerator, LastNameGenerator)
 
 
 class ModelGenerator(BaseGenerator):
@@ -31,8 +34,6 @@ class ModelGenerator(BaseGenerator):
         Maps a field type to a Generator type.   Work in progress and lots of
         room for improvement.
         """
-        from django.db import models
-
         if isinstance(field, models.AutoField):
             return None
         elif isinstance(field, models.BigIntegerField):
@@ -48,7 +49,14 @@ class ModelGenerator(BaseGenerator):
             if field.attname == 'username':
                 return UsernameGenerator
             elif field.attname == 'email':
-                return EmailAddressGenerator
+                return GmailAddressGenerator
+            elif 'name' in field.attname:
+                if 'first' in field.attname:
+                    return FirstNameGenerator
+                elif 'last' in field.attname:
+                    return LastNameGenerator
+                else:
+                    return FirstNameGenerator
             elif not field.default == models.fields.NOT_PROVIDED:
                 return None
             else:
@@ -62,11 +70,11 @@ class ModelGenerator(BaseGenerator):
             elif not field.default == models.fields.NOT_PROVIDED:
                 return None
             else:
-                return CurrentDatetimeGenerator
+                return CurrentDateTimeGenerator
         elif isinstance(field, models.DecimalField):
             raise NotImplementedError("Have not implemented DecimalGenerator")
         elif isinstance(field, models.EmailField):
-            return EmailAddressGenerator
+            return GmailAddressGenerator
         elif isinstance(field, models.FileField):
             raise NotImplementedError("Have not implemented FileGenerator")
         elif isinstance(field, models.FilePathField):
@@ -153,7 +161,7 @@ class ModelGenerator(BaseGenerator):
 #    fields = (
 #            ('username', UsernameGenerator),
 #            ('password', SimplePasswordGenerator),
-#            ('email', EmailAddressGenerator),
+#            ('email', GmailAddressGenerator),
 #            )
 #    model = User
 #

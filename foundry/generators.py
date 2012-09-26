@@ -131,19 +131,14 @@ class RandomBooleanGenerator(RandomChoiceGenerator):
     values = [True, False]
 
 
-class GmailGenerator(RepeatValueGenerator):
-    value = 'gmail'
-
-
-class EmailAddressGenerator(MultiGenerator):
+class GmailAddressGenerator(MultiGenerator):
     """
     Returns gmail addresses using ``UsernameGenerator`` for the username
     portion of the email address.
     """
-    format_string = '{username}@{domain}.com'
-    generator_classes = {
+    format_string = '{username}@gmail.com'
+    generators = {
             'username': UsernameGenerator,
-            'domain': GmailGenerator,
             }
 
 
@@ -193,4 +188,4 @@ class CurrentDateGenerator(CoercionGenerator):
     generator_class = CurrentDateTimeGenerator
 
     def coerce_value(self, value):
-        return value.date
+        return value.date()

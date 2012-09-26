@@ -5,6 +5,8 @@ import time
 
 from itertools import repeat
 
+from foundry.exceptions import UniqueValueTimeoutError
+
 
 class BaseGenerator(object):
     """
@@ -16,6 +18,7 @@ class BaseGenerator(object):
     :attr:`~BaseGenerator.size` will determine the number of values returnes
     during iteration.
     """
+    MAX_HANG_TIME = 1.0
     size = None
     unique = True
     shuffle = True
@@ -38,7 +41,7 @@ class BaseGenerator(object):
         generator stores a hash of all of the values it has already returned.
         When it encounters a value it has already come across, if will spend a
         brief amount of time continuing to try and find a value it has not
-        already seen by continuing to iterate through the `inner_generator``.  
+        already seen by continuing to iterate through the `inner_generator``.
         """
         return value
 
@@ -82,7 +85,12 @@ class BaseGenerator(object):
         for i in self.outer_generator():
             # Enter an infinite loop, allowing us to ensure values are unique
             # if self.unique is set to true
+            last_yield = None
             while True:
+                if last_yield is None:
+                    last_yield = time.time()
+                if time.time() - last_yield > self.MAX_HANG_TIME:
+                    raise UniqueValueTimeoutError('Took longer than {self.MAX_HANG_TIME} seconds attempting to generate a unique value')
                 retval = generator.next()
                 hash = self.compute_hash(retval)
                 # Break if the hash for this return value is in self.hashes.
@@ -281,7 +289,7 @@ class DateTimeGenerator(BaseGenerator):
         while True:
             delta = self.get_max_datetime() - self.get_min_datetime()
             seconds = int(delta.total_seconds())
-            yield self.min_datetime + datetime.timedelta(seconds=random.randrange(seconds))
+            yield self.get_min_datetime() + datetime.timedelta(seconds=random.randrange(seconds))
 
 
 class CoercionGenerator(BaseGenerator):
