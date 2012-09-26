@@ -7,14 +7,14 @@ Content generators for python
 
 version = '0.0.1'
 
-setup(name='pyrite',
+setup(name='foundry',
     version=version,
     description='Content generators for Python',
     author='Aaron Merriam',
     author_email='aaronmerriam@gmail.com',
     keywords='content',
     long_description=__doc__,
-    url='https://github.com/aaronmerriam/pyrite',
+    url='https://github.com/aaronmerriam/foundry',
     packages=find_packages(),
     platforms="any",
     license='BSD',

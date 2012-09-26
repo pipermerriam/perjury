@@ -1,6 +1,6 @@
 import unittest
 
-from pyrite.generators import (WordGenerator, FirstNameGenerator,
+from foundry.generators import (WordGenerator, FirstNameGenerator,
         MaleNameGenerator, FemaleNameGenerator, LastNameGenerator,
         FullNameGenerator, SingleLineTextGenerator, TitleGenerator,
         RepeatValueGenerator, RandomIntegerGenerator, OrderedIntegerGenerator,

@@ -1,10 +1,10 @@
 Base Module
 ===========
 
-``pyrite.base`` declares base generator classes used to constuct more useful generators.
+``foundry.base`` declares base generator classes used to constuct more useful generators.
 
 Generators
 ----------
 
-.. automodule:: pyrite.base
+.. automodule:: foundry.base
     :members: BaseGenerator, WordGenerator, MultiGenerator, RepeatValueGenerator, IntegerGenerator

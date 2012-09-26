@@ -1,3 +1,3 @@
-# pyrite
+# foundry
 
 Useful tools generating content.

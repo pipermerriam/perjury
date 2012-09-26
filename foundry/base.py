@@ -8,7 +8,7 @@ from itertools import repeat
 
 class BaseGenerator(object):
     """
-    Base class for all pyrite generator classes.
+    Base class for all foundry generator classes.
 
     :attr:`~BaseGenerator.size`
 
@@ -47,7 +47,7 @@ class BaseGenerator(object):
         This method must be implemented on subclasses of ``BaseGenerator``.
         This method should return an iterator with a few caveats.
 
-        Due to the way uniqueness is handled in pyrite generators, when
+        Due to the way uniqueness is handled in foundry generators, when
         possible, this method should return a generator which can return as
         many values as possible.  In situations where it is attainable, an
         'infinite generator' should be returned since limiting iterations is

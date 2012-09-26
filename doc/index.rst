@@ -1,5 +1,5 @@
-Welcome to pyrite's documentation!
-============================================
+Welcome to Foundry's documentation!
+===================================
 
 Contents:
 

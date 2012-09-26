@@ -1,10 +1,10 @@
 import random
 import datetime
 
-from pyrite.base import (BaseGenerator, WordGenerator, MultiGenerator,
+from foundry.base import (BaseGenerator, WordGenerator, MultiGenerator,
         RepeatValueGenerator, IntegerGenerator, RandomChoiceGenerator,
         DateTimeGenerator, CoercionGenerator)
-from pyrite.content import (MALE_NAMES, FEMALE_NAMES, LAST_NAMES, FIRST_NAMES,
+from foundry.content import (MALE_NAMES, FEMALE_NAMES, LAST_NAMES, FIRST_NAMES,
         WORD_LIST, USERNAMES)
 
 
@@ -165,8 +165,10 @@ class BigIntegerGenerator(IntegerGenerator):
 
 class RandomIntegerGenerator(IntegerGenerator):
     """
-    Returns random integers over the range ``self.lower_bound``,
+    Returns random integers over the range bounded between a lower and upper
+    bound.
     ``self.upper_bound``, repeating until termination
+
     """
     pass
 

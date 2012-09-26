@@ -1,6 +1,6 @@
 import copy
 
-from pyrite.generators import (BaseGenerator, UsernameGenerator, SimplePasswordGenerator,
+from foundry.generators import (BaseGenerator, UsernameGenerator, SimplePasswordGenerator,
         EmailAddressGenerator, BigIntegerGenerator, TrueGenerator,
         RandomBooleanGenerator, SingleLineTextGenerator,
         CurrentDateTimeGenerator, RandomIntegerGenerator, CurrentDateGenerator)

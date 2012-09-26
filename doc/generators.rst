@@ -1,7 +1,7 @@
 Generators Module
 =================
 
-``pyrite.generators`` provides some helpful common generator classes.
+``foundry.generators`` provides some helpful common generator classes.
 
 Generators
 ----------
@@ -9,17 +9,17 @@ Generators
 Name Generators
 ~~~~~~~~~~~~~~~
 
-.. automodule:: pyrite.generators
+.. automodule:: foundry.generators
     :members: MaleNameGenerator, FemaleNameGenerator, FirstNameGenerator, LastNameGenerator, FullNameGenerator
 
 Text Generators
 ~~~~~~~~~~~~~~~
 
-.. automodule:: pyrite.generators
+.. automodule:: foundry.generators
     :members: SingleLineTextGenerator, TitleGenerator
 
 Content Generators
 ~~~~~~~~~~~~~~~
 
-.. automodule:: pyrite.generators
+.. automodule:: foundry.generators
     :members: EmailAddressGenerator, OrderedIntegerGenerator, RandomIntegerGenerator
