@@ -28,7 +28,6 @@ class TestNameGenerators(unittest.TestCase):
         g = BasicWordGenerator(2)
         self.assertEqual(len(g), 2)
         names = [g.next() for i in range(2)]
-        self.assertEqual(len(names), 2)
         self.assertEqual(names, self.names[:2])
 
     def test_name_generator_classes(self):
@@ -39,42 +38,23 @@ class TestNameGenerators(unittest.TestCase):
 
     def do_assertions(self, generator):
         self.assertEqual(len(generator), len(generator.words))
-        for name in generator:
+        for i in range(100):
+            name = generator.next()
             self.assertIn(name, generator.words)
-
-
-class TestFullNameGenerator(unittest.TestCase):
-    def setUp(self):
-        self.first_names = ['joe', 'jim', 'jane']
-        self.last_names = ['smith', 'johnson', 'williams']
-
-    def test_full_name_generator(self):
-        class TestFullNameGenerator(FullNameGenerator):
-            first_names = self.first_names
-            last_names = self.last_names
-        g = TestFullNameGenerator()
-        self.assertEqual(len(g), 9)
-
-    def test_large_iteration_count(self):
-        g = FullNameGenerator(5000)
-        for name in g:
-            pass
 
 
 class TestRepeatValueGenerator(unittest.TestCase):
     def test_returns_same_value(self):
-        class TestRepeatValueGenerator(RepeatValueGenerator):
-            value = 'arstarst'
-        g = TestRepeatValueGenerator(20)
-        for i, value in enumerate(g):
-            self.assertEqual(value, 'arstarst')
-        self.assertEqual(i, 19)
+        g = RepeatValueGenerator(value='arst')
+        for i in range(20):
+            self.assertEqual(g.next(), 'arstarst')
 
 
 class TestSingleLineTextGenerator(unittest.TestCase):
     def test_single_line_text_generator(self):
-        g = SingleLineTextGenerator(100)
-        for line in g:
+        g = SingleLineTextGenerator()
+        for i in range(100):
+            line = g.next()
             self.assertTrue(len(line) >= g.min_length, "{0} is not greater than {1}".format(len(line), g.min_length))
             self.assertTrue(len(line) <= g.max_length, "{0} is not less than {1}".format(len(line), g.min_length))
 
@@ -82,7 +62,8 @@ class TestSingleLineTextGenerator(unittest.TestCase):
 class TestTitleGenerator(unittest.TestCase):
     def test_base_title_generator(self):
         g = TitleGenerator(100)
-        for title in g:
+        for i in range(100):
+            title = g.next()
             self.assertEqual(title[0].upper(), title[0])
             self.assertEqual(title[1:].lower(), title[1:])
 
@@ -90,7 +71,8 @@ class TestTitleGenerator(unittest.TestCase):
 class IntegerGeneratorTest(unittest.TestCase):
     def test_basic_generator(self):
         g = RandomIntegerGenerator(100)
-        for i in g:
+        for i in range(100):
+            i = g.next()
             self.assertGreaterEqual(i, g.lower_bound)
             self.assertLess(i, g.upper_bound)
 
