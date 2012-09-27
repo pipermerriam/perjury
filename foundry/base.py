@@ -139,10 +139,10 @@ class MultiGenerator(BaseGenerator):
     generators = {}
     format_string = None
 
-    def __init__(self, size):
+    def __init__(self):
         self.generators = copy.copy(self.generators)
         for key, GeneratorClass in self.generators.iteritems():
-            self.generators[key] = iter(GeneratorClass(self.size))
+            self.generators[key] = iter(GeneratorClass())
 
     def generator(self):
         while True:
