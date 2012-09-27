@@ -58,7 +58,7 @@ class FullNameGenerator(BaseGenerator):
         if self.unique and not self.size == max_size and self.size > max_size / 4:
             raise RuntimeWarning("FullNameGenerator's performance will degrade at higher iteration counts when set to return unique results")
 
-    def inner_generator(self):
+    def generator(self):
         while True:
             if len(self.hashes) == self.size:
                 raise StopIteration
@@ -77,7 +77,7 @@ class SingleLineTextGenerator(BaseGenerator):
     max_length = 80
     min_length = 50
 
-    def inner_generator(self):
+    def generator(self):
         while True:
             title = ''
             length = random.randint(self.min_length, self.max_length)
@@ -101,8 +101,8 @@ class TitleGenerator(SingleLineTextGenerator):
     Returns the same valus as ``SingleLineTextGenerator`` but with their first
     letter capitalized.
     """
-    def inner_generator(self):
-        for title in super(TitleGenerator, self).inner_generator():
+    def generator(self):
+        for title in super(TitleGenerator, self).generator():
             yield title[0].upper() + title[1:]
 
 

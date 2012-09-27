@@ -13,18 +13,12 @@ class TestNameGenerators(unittest.TestCase):
     def setUp(self):
         self.names = ['joe', 'jim', 'john']
 
-    def test_base_name_generator(self):
-        class BasicWordGenerator(WordGenerator):
-            words = self.names
-        g = BasicWordGenerator()
-        self.assertEqual(len(g), 3)
-
     def test_base_name_generator_slicing(self):
         class BasicWordGenerator(WordGenerator):
             shuffle = False
             words = self.names
         g = BasicWordGenerator()
-        names = g[1:3]
+        names = [g.next() for i in range(3)]
         self.assertEqual(names, self.names[1:3])
 
     def test_base_name_generator_custom_length(self):
@@ -33,7 +27,7 @@ class TestNameGenerators(unittest.TestCase):
             words = self.names
         g = BasicWordGenerator(2)
         self.assertEqual(len(g), 2)
-        names = [name for name in g]
+        names = [g.next() for i in range(2)]
         self.assertEqual(len(names), 2)
         self.assertEqual(names, self.names[:2])
 

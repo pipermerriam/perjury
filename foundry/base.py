@@ -22,17 +22,9 @@ class BaseGenerator(object):
     size = None
     unique = True
     shuffle = True
+    hashes = set()
 
-    def __init__(self, size=None, unique=None, shuffle=None):
-        self.hashes = set()
-        self.size = size or self.size
-        self.unique = unique or self.unique
-        self.shuffle = shuffle or self.shuffle
-
-    def __len__(self):
-        return self.size
-
-    def compute_hash(self, value):
+    def get_hash_function(self):
         """
         Hook for ensuring that when :attr:`~BaseGenerator.unique`, the
         generator will return unique values.
@@ -43,9 +35,9 @@ class BaseGenerator(object):
         brief amount of time continuing to try and find a value it has not
         already seen by continuing to iterate through the `inner_generator``.
         """
-        return value
+        return hash
 
-    def inner_generator(self):
+    def generator(self):
         """
         This method must be implemented on subclasses of ``BaseGenerator``.
         This method should return an iterator with a few caveats.
@@ -58,41 +50,23 @@ class BaseGenerator(object):
         """
         raise NotImplementedError('Genertator classes must implement their own `inner_generator` method.')
 
+    @property
+    def inner_generator(self):
+        if not hasattr(self, '_generator'):
+            self._generator = self.generator()
+        return self._generator
+
     def outer_generator(self):
-        """
-        In the case of :attr:`BaseGenerator.size` being set to ``None``, this
-        will return an infinite generator.  With certain subclasses, this may
-        have undocumented or unpredictable results at very high iteration
-        counts.
-
-        In the case of a fixed size, this returns an iterator which will
-        terminate after :attr:`BaseGenerator.size` iterations.
-        """
-        if self.size is None:
-            while True:
-                yield
-        else:
-            for i in xrange(self.size):
-                yield i
-
-    def __iter__(self):
-        """
-        Implements the actual generation, limiting based on ``self.size`` if
-        present, and ensuring that unique values are returned if
-        ``self.unique`` is set to ``True``.
-        """
-        generator = self.inner_generator()
-        for i in self.outer_generator():
-            # Enter an infinite loop, allowing us to ensure values are unique
-            # if self.unique is set to true
+        hash_function = self.get_hash_function()
+        while True:
             last_yield = None
             while True:
                 if last_yield is None:
                     last_yield = time.time()
                 if time.time() - last_yield > self.MAX_HANG_TIME:
                     raise UniqueValueTimeoutError('Took longer than {self.MAX_HANG_TIME} seconds attempting to generate a unique value')
-                retval = generator.next()
-                hash = self.compute_hash(retval)
+                retval = self._generator.next()
+                hash = hash_function(retval)
                 # Break if the hash for this return value is in self.hashes.
                 if not hash in self.hashes:
                     break
@@ -103,6 +77,37 @@ class BaseGenerator(object):
                 self.hashes.add(hash)
             yield retval
 
+    def reset(self):
+        self._generator = self.generator()
+
+    def next(self):
+        """
+        In the case of :attr:`BaseGenerator.size` being set to ``None``, this
+        will return an infinite generator.  With certain subclasses, this may
+        have undocumented or unpredictable results at very high iteration
+        counts.
+
+        In the case of a fixed size, this returns an iterator which will
+        terminate after :attr:`BaseGenerator.size` iterations.
+        """
+        return self.inner_generator.next()
+
+    def __iter__(self):
+        """
+        Implements the actual generation, limiting based on ``self.size`` if
+        present, and ensuring that unique values are returned if
+        ``self.unique`` is set to ``True``.
+        """
+        return self.inner_generator
+
+
+class TestSubclass(BaseGenerator):
+    def generator(self):
+        i = 0
+        while True:
+            yield i
+            i += 1
+
 
 class WordGenerator(BaseGenerator):
     """
@@ -111,21 +116,15 @@ class WordGenerator(BaseGenerator):
     # TODO: figuer out how to combine this properly with RandomChoiceGenerator.
     words = []
 
-    def __init__(self, size=None, **kwargs):
-        kwargs['size'] = size or len(self.words)
-        super(WordGenerator, self).__init__(**kwargs)
-        self.words = copy.copy(self.words)
+    def __init__(self):
         if self.shuffle:
             # Make the list of words mutable if it appears to be immutable
             if not hasattr(self.words, '__setitem__'):
                 self.words = list(self.words)
             random.shuffle(self.words)
 
-    def inner_generator(self):
+    def generator(self):
         return iter(self.words)
-
-    def __getitem__(self, key):
-        return self.words[key]
 
 
 class MultiGenerator(BaseGenerator):
@@ -141,12 +140,11 @@ class MultiGenerator(BaseGenerator):
     format_string = None
 
     def __init__(self, size):
-        super(MultiGenerator, self).__init__(size)
         self.generators = copy.copy(self.generators)
         for key, GeneratorClass in self.generators.iteritems():
             self.generators[key] = iter(GeneratorClass(self.size))
 
-    def inner_generator(self):
+    def generator(self):
         while True:
             kwargs = self.get_format_kwargs()
             retval = self.format_string.format(**kwargs)
@@ -171,7 +169,11 @@ class RepeatValueGenerator(BaseGenerator):
     unique = False
     value = None
 
-    def inner_generator(self):
+    def __init__(self, value=None):
+        if value is not None:
+            self.value = value
+
+    def generator(self):
         return repeat(self.value)
 
 
@@ -240,16 +242,15 @@ class IntegerGenerator(BaseGenerator):
     lower_bound = 0
     upper_bound = 1000
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         for field_name in ['lower_bound', 'upper_bound']:
             value = kwargs.pop(field_name, None)
             if value is not None:
                 setattr(self, field_name, int(value))
-        super(IntegerGenerator, self).__init__(*args, **kwargs)
         if self.unique and self.size > abs(self.upper_bound - self.lower_bound):
             raise ValueError('Impossible constraints.  Either disable uniqueness on this generator, or increase the bounds')
 
-    def inner_generator(self):
+    def generator(self):
         while True:
             if self.shuffle:
                 yield random.randint(self.lower_bound, self.upper_bound)
@@ -266,7 +267,7 @@ class RandomChoiceGenerator(BaseGenerator):
     unique = False
     values = []
 
-    def inner_generator(self):
+    def generator(self):
         while True:
             yield random.choice(self.values)
 
@@ -285,7 +286,7 @@ class DateTimeGenerator(BaseGenerator):
     def get_max_datetime(self):
         return self.max_datetime
 
-    def inner_generator(self):
+    def generator(self):
         while True:
             delta = self.get_max_datetime() - self.get_min_datetime()
             seconds = int(delta.total_seconds())
@@ -301,7 +302,7 @@ class CoercionGenerator(BaseGenerator):
     def coerce_value(self, value):
         raise NotImplementedError('Subclasses of CoercionGenerator must implement a `coerce_value` method')
 
-    def inner_generator(self):
+    def generator(self):
         if self.generator_class is None:
             raise NotImplementedError('Subclasses of CoercionGenerator must define a `generator_class`')
         generator = self.generator_class()
