@@ -1,8 +1,10 @@
+from __future__ import division
 import random
 import copy
 import datetime
 import time
 
+from decimal import Decimal
 from itertools import repeat
 
 from foundry.exceptions import UniqueValueTimeoutError
@@ -53,11 +55,12 @@ class BaseGenerator(object):
     @property
     def inner_generator(self):
         if not hasattr(self, '_generator'):
-            self._generator = self.generator()
+            self.reset()
         return self._generator
 
     def outer_generator(self):
         hash_function = self.get_hash_function()
+        generator = self.generator()
         while True:
             last_yield = None
             while True:
@@ -65,7 +68,7 @@ class BaseGenerator(object):
                     last_yield = time.time()
                 if time.time() - last_yield > self.MAX_HANG_TIME:
                     raise UniqueValueTimeoutError('Took longer than {self.MAX_HANG_TIME} seconds attempting to generate a unique value')
-                retval = self._generator.next()
+                retval = generator.next()
                 hash = hash_function(retval)
                 # Break if the hash for this return value is in self.hashes.
                 if not hash in self.hashes:
@@ -78,7 +81,7 @@ class BaseGenerator(object):
             yield retval
 
     def reset(self):
-        self._generator = self.generator()
+        self._generator = self.outer_generator()
 
     def next(self):
         """
@@ -91,6 +94,12 @@ class BaseGenerator(object):
         terminate after :attr:`BaseGenerator.size` iterations.
         """
         return self.inner_generator.next()
+
+    def __call__(self, *args, **kwargs):
+        """
+        Wrapper around :func:`BaseGenerator.next`
+        """
+        return self.next(*args, **kwargs)
 
     def __iter__(self):
         """
@@ -243,7 +252,7 @@ class IntegerGenerator(BaseGenerator):
     upper_bound = 1000
 
     def __init__(self, **kwargs):
-        for field_name in ['lower_bound', 'upper_bound']:
+        for field_name in ['lower_bound', 'upper_bound', 'unique', 'shuffle']:
             value = kwargs.pop(field_name, None)
             if value is not None:
                 setattr(self, field_name, int(value))
@@ -308,3 +317,19 @@ class CoercionGenerator(BaseGenerator):
         generator = self.generator_class()
         for value in generator:
             yield self.coerce_value(value)
+
+
+class DecimalGenerator(BaseGenerator):
+    lower_bound = 0
+    upper_bound = 100
+    precision = 2
+
+    def __init__(self, upper_bound=None, lower_bound=None, precision=None):
+        self.upper_bound = upper_bound or self.upper_bound
+        self.lower_bound = lower_bound or self.lower_bound
+        self.precision = precision or self.precision
+
+    def generator(self):
+        divisor = 10 ** self.precision
+        value = random.randint(divisor * self.upper_bound)
+        return Decimal(value) / divisor

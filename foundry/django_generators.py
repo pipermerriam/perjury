@@ -2,6 +2,7 @@ import copy
 
 from django.db import models
 
+from foundry.base import DecimalGenerator
 from foundry.generators import (BaseGenerator, UsernameGenerator,
         GmailAddressGenerator, BigIntegerGenerator, TrueGenerator,
         RandomBooleanGenerator, SingleLineTextGenerator,
@@ -14,19 +15,36 @@ class ModelGenerator(BaseGenerator):
     Generates instances of a model
     """
     exclude = []
-    fields = []
+    fields = None
     model = None
     generator = None
     generators = {}
 
-    def __init__(self, size):
-        super(ModelGenerator, self).__init__(size)
+    def __init__(self, model=None, fields=None, exclude=None):
+        if not model is None:
+            self.model = model
+        if not fields is None:
+            self.fields = fields
+        if not exclude is None:
+            self.exclude = exclude
         self.setup_generators()
 
-    def __iter__(self):
-        for i in range(self.size):
+    def next(self, commit=False):
+        instance = super(ModelGenerator, self).next()
+        if commit:
+            instance.save()
+        return instance
+
+    def generator(self):
+        while True:
             kwargs = self.get_create_kwargs()
-            yield self.create_model(**kwargs)
+            self.model(**kwargs)
+
+    def get_create_kwargs(self):
+        kwargs = {}
+        for key, generator in self.generators.iteritems():
+            kwargs[key] = generator.next()
+        return kwargs
 
     @classmethod
     def get_generator_for_field(self, field):
@@ -72,7 +90,7 @@ class ModelGenerator(BaseGenerator):
             else:
                 return CurrentDateTimeGenerator
         elif isinstance(field, models.DecimalField):
-            raise NotImplementedError("Have not implemented DecimalGenerator")
+            raise DecimalGenerator
         elif isinstance(field, models.EmailField):
             return GmailAddressGenerator
         elif isinstance(field, models.FileField):
@@ -124,8 +142,11 @@ class ModelGenerator(BaseGenerator):
         self.generators = copy.copy(self.generators)
         # Instantiate all manually defined generators.
         for key, Generator in self.generators:
-            self.generators[key] = Generator(self.size)
+            self.generators[key] = Generator()
         for field in self.model._meta.fields:
+            # Only declare fields if list of fields were declared.
+            if self.fields and field.attname not in self.fields:
+                continue
             # skip any manually declared generators
             if field.attname in self.generators:
                 continue
@@ -140,37 +161,4 @@ class ModelGenerator(BaseGenerator):
                 Generator = self.get_generator_for_field(field)
                 if Generator is None:
                     continue
-                self.generators[field.attname] = iter(Generator(self.size))
-
-    def get_create_kwargs(self):
-        kwargs = {}
-        for key, generator in self.generators.iteritems():
-            kwargs[key] = generator.next()
-        return kwargs
-
-    def create_model(self, **kwargs):
-        instance = self.model.oblects.create(**kwargs)
-        return instance
-
-#from django.contrib.auth.models import User
-
-#class UserGenerator(ModelGenerator):
-#    """
-#    Not quite here yet.
-#    """
-#    fields = (
-#            ('username', UsernameGenerator),
-#            ('password', SimplePasswordGenerator),
-#            ('email', GmailAddressGenerator),
-#            )
-#    model = User
-#
-#    def __init__(self, *args, **kwargs):
-#        super(UserGenerator, self).__init__(*args, **kwargs)
-#        self.name_generator = FullNameGenerator(self.size).__iter__()
-#
-#    def create_model(self, **kwargs):
-#        user = User.objects.create_user(**kwargs)
-#        user.first_name, user.last_name = self.name_generator.next()
-#        user.save()
-#        return user
+                self.generators[field.attname] = iter(Generator())
