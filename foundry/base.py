@@ -26,6 +26,9 @@ class BaseGenerator(object):
     shuffle = True
     hashes = set()
 
+    def __init__(self):
+        self.hashes = copy.copy(self.hashes)
+
     def get_hash_function(self):
         """
         Hook for ensuring that when :attr:`~BaseGenerator.unique`, the
@@ -126,6 +129,7 @@ class WordGenerator(BaseGenerator):
     words = []
 
     def __init__(self):
+        super(WordGenerator, self).__init__()
         if self.shuffle:
             # Make the list of words mutable if it appears to be immutable
             if not hasattr(self.words, '__setitem__'):
@@ -133,7 +137,8 @@ class WordGenerator(BaseGenerator):
             random.shuffle(self.words)
 
     def generator(self):
-        return iter(self.words)
+        for word in self.words:
+            yield word
 
 
 class MultiGenerator(BaseGenerator):
@@ -149,6 +154,7 @@ class MultiGenerator(BaseGenerator):
     format_string = None
 
     def __init__(self):
+        super(MultiGenerator, self).__init__()
         self.generators = copy.copy(self.generators)
         for key, GeneratorClass in self.generators.iteritems():
             self.generators[key] = iter(GeneratorClass())
@@ -179,6 +185,7 @@ class RepeatValueGenerator(BaseGenerator):
     value = None
 
     def __init__(self, value=None):
+        super(RepeatValueGenerator, self).__init__()
         if value is not None:
             self.value = value
 
@@ -252,6 +259,7 @@ class IntegerGenerator(BaseGenerator):
     upper_bound = 1000
 
     def __init__(self, **kwargs):
+        super(IntegerGenerator, self).__init__()
         for field_name in ['lower_bound', 'upper_bound', 'unique', 'shuffle']:
             value = kwargs.pop(field_name, None)
             if value is not None:
@@ -325,6 +333,7 @@ class DecimalGenerator(BaseGenerator):
     precision = 2
 
     def __init__(self, upper_bound=None, lower_bound=None, precision=None):
+        super(DecimalGenerator, self).__init__()
         self.upper_bound = upper_bound or self.upper_bound
         self.lower_bound = lower_bound or self.lower_bound
         self.precision = precision or self.precision

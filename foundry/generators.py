@@ -52,6 +52,7 @@ class FullNameGenerator(BaseGenerator):
     last_names = LAST_NAMES
 
     def __init__(self, size=None, **kwargs):
+        super(FullNameGenerator, self).__init__()
         max_size = len(self.first_names) * len(self.last_names)
         kwargs['size'] = size or max_size
         super(FullNameGenerator, self).__init__(**kwargs)
@@ -185,6 +186,7 @@ class CurrentDateGenerator(CoercionGenerator):
     """
     Generates dates within a certain range of the current time.
     """
+    unique = False
     generator_class = CurrentDateTimeGenerator
 
     def coerce_value(self, value):

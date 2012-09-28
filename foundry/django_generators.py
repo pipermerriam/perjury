@@ -35,10 +35,15 @@ class ModelGenerator(BaseGenerator):
             instance.save()
         return instance
 
+    def get_hash_function(self):
+        def hash_function(instance):
+            return instance.username
+        return hash_function
+
     def generator(self):
         while True:
             kwargs = self.get_create_kwargs()
-            self.model(**kwargs)
+            yield self.model(**kwargs)
 
     def get_create_kwargs(self):
         kwargs = {}
@@ -47,7 +52,7 @@ class ModelGenerator(BaseGenerator):
         return kwargs
 
     @classmethod
-    def get_generator_for_field(self, field):
+    def get_generator_for_field(cls, field):
         """
         Maps a field type to a Generator type.   Work in progress and lots of
         room for improvement.
@@ -127,9 +132,10 @@ class ModelGenerator(BaseGenerator):
             raise NotImplementedError("Have not implemented MultilineTextGenerator")
         elif isinstance(field, models.TimeField):
             raise NotImplementedError("Have not implemented TimeGenerator")
-        elif isinstance(field, models.UrlField):
+        elif isinstance(field, models.URLField):
             raise NotImplementedError("Have not implemented UrlGenerator")
         elif isinstance(field, models.ForeignKey):
+            return cls(model=field.rel.to)
             raise NotImplementedError("Have not implemented Ability to auto create more model generators.")
         elif isinstance(field, models.OneToOne):
             raise NotImplementedError("Have not implemented Ability to auto create more model generators.")
@@ -159,6 +165,9 @@ class ModelGenerator(BaseGenerator):
                 continue
             else:
                 Generator = self.get_generator_for_field(field)
-                if Generator is None:
+                if isinstance(Generator, BaseGenerator):
+                    pass
+                elif Generator is None:
                     continue
-                self.generators[field.attname] = iter(Generator())
+                elif issubclass(Generator, BaseGenerator):
+                    self.generators[field.attname] = iter(Generator())
