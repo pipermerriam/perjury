@@ -27,6 +27,9 @@ class BaseGenerator(object):
     hashes = set()
 
     def __init__(self):
+        self.initialize_hashes()
+
+    def initialize_hashes(self):
         self.hashes = copy.copy(self.hashes)
 
     def get_hash_function(self):
