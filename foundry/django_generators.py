@@ -28,17 +28,13 @@ class ModelGenerator(BaseGenerator):
         if not exclude is None:
             self.exclude = exclude
         self.setup_generators()
+        # TODO: initialize hashes with database values to enforce uniqueness.
 
     def next(self, commit=False):
         instance = super(ModelGenerator, self).next()
         if commit:
             instance.save()
         return instance
-
-    def get_hash_function(self):
-        def hash_function(instance):
-            return instance.username
-        return hash_function
 
     def generator(self):
         while True:
@@ -48,6 +44,8 @@ class ModelGenerator(BaseGenerator):
     def get_create_kwargs(self):
         kwargs = {}
         for key, generator in self.generators.iteritems():
+            if key in self.exclude:
+                continue
             kwargs[key] = generator.next()
         return kwargs
 
@@ -147,7 +145,7 @@ class ModelGenerator(BaseGenerator):
     def setup_generators(self):
         self.generators = copy.copy(self.generators)
         # Instantiate all manually defined generators.
-        for key, Generator in self.generators:
+        for key, Generator in self.generators.iteritems():
             self.generators[key] = Generator()
         for field in self.model._meta.fields:
             # Only declare fields if list of fields were declared.

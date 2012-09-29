@@ -51,14 +51,6 @@ class FullNameGenerator(BaseGenerator):
     first_names = FIRST_NAMES
     last_names = LAST_NAMES
 
-    def __init__(self, size=None, **kwargs):
-        super(FullNameGenerator, self).__init__()
-        max_size = len(self.first_names) * len(self.last_names)
-        kwargs['size'] = size or max_size
-        super(FullNameGenerator, self).__init__(**kwargs)
-        if self.unique and not self.size == max_size and self.size > max_size / 4:
-            raise RuntimeWarning("FullNameGenerator's performance will degrade at higher iteration counts when set to return unique results")
-
     def generator(self):
         while True:
             if len(self.hashes) == self.size:
