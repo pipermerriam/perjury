@@ -18,7 +18,6 @@ class BaseGenerator(object):
     size = None
     unique = True
     shuffle = True
-    hash_function = hash
 
     def __init__(self):
         self.reset()
@@ -33,6 +32,9 @@ class BaseGenerator(object):
         """
         """
         return self.outer_generator()
+
+    def hash_function(self, value):
+        return value
 
     def initialize_hashes(self):
         """
@@ -306,6 +308,7 @@ class CoercionGenerator(BaseGenerator):
 
 
 class DecimalGenerator(BaseGenerator):
+    unique = False
     lower_bound = 0
     upper_bound = 100
     precision = 2
@@ -317,6 +320,7 @@ class DecimalGenerator(BaseGenerator):
         self.precision = precision or self.precision
 
     def generator(self):
-        divisor = 10 ** self.precision
-        value = random.randint(divisor * self.upper_bound)
-        return Decimal(value) / divisor
+        while True:
+            divisor = 10 ** self.precision
+            value = random.randint(self.lower_bound, divisor * self.upper_bound)
+            yield Decimal(value) / divisor
