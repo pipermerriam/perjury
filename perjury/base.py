@@ -7,12 +7,12 @@ import time
 from decimal import Decimal
 from itertools import repeat
 
-from foundry.exceptions import UniqueValueTimeoutError
+from perjury.exceptions import UniqueValueTimeoutError
 
 
 class BaseGenerator(object):
     """
-    Base class for all foundry generator classes.
+    Base class for all perjury generator classes.
     """
     MAX_HANG_TIME = 1.0
     size = None

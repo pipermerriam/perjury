@@ -2,14 +2,14 @@
 from setuptools import setup, find_packages
 
 __doc__="""
-Content generators for python
+Falsify data
 """
 
 version = '0.0.1'
 
-setup(name='foundry',
+setup(name='perjury',
     version=version,
-    description='Content generators for Python',
+    description=__doc__,
     author='Aaron Merriam',
     author_email='aaronmerriam@gmail.com',
     keywords='content',

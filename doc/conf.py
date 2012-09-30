@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# foundry documentation build configuration file, created by
+# perjury documentation build configuration file, created by
 # sphinx-quickstart on Tue Oct  4 12:34:14 2011.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -40,7 +40,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'foundry'
+project = u'perjury'
 copyright = u'2012, Aaron Merriam'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -164,7 +164,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'foundrydoc'
+htmlhelp_basename = 'perjurydoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -178,7 +178,7 @@ htmlhelp_basename = 'foundrydoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'foundry.tex', u'foundry Documentation',
+  ('index', 'perjury.tex', u'perjury Documentation',
    u'Aaron Merriam', 'manual'),
 ]
 
@@ -211,7 +211,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'foundry', u'Foundry Documentation',
+    ('index', 'perjury', u'Foundry Documentation',
      [u'Aaron Merriam'], 1)
 ]
 import sys

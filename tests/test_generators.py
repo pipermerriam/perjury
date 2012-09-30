@@ -1,7 +1,7 @@
 import unittest
 import re
 
-from foundry.generators import (WordGenerator, FirstNameGenerator,
+from perjury.generators import (WordGenerator, FirstNameGenerator,
         MaleNameGenerator, FemaleNameGenerator, LastNameGenerator,
         FullNameGenerator, SingleLineTextGenerator, TitleGenerator,
         RepeatValueGenerator, RandomIntegerGenerator, OrderedIntegerGenerator,

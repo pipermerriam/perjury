@@ -1,8 +1,8 @@
 import unittest
 import random
 
-from foundry.base import BaseGenerator
-from foundry.exceptions import UniqueValueTimeoutError
+from perjury.base import BaseGenerator
+from perjury.exceptions import UniqueValueTimeoutError
 
 
 class TestBasicBaseGenerator(unittest.TestCase):
