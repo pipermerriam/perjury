@@ -12,6 +12,7 @@ def get_generator_for_class(cls):
     corresponds with the field type.  If it finds none, it will raise an
     :class:`IndexError`.
     """
+    # TODO: make this extensible???
     class2generator_map = {
             models.CharField: generators.words,
             models.DateTimeField: generators.now,
@@ -32,6 +33,7 @@ def guess_generator_by_name(name):
     Tries to intelligently guess a generator based on a name.  If it cannot, it
     will raise a :class:`KeyError`.
     """
+    # TODO: make this extensible???
     name2generator_map = {
             'first_name': generators.first_name,
             'last_name': generators.last_name,
@@ -93,11 +95,14 @@ class ModelGenerator(generators.Generator):
         from perjury.django_generators import ModelGenerator
         from perjury import generators as g
 
-        def full_name():
-            return ' '.join((g.first_name(), g.last_name()))
+        def company_name():
+            return '{0} {1}, Inc.'.format(
+                g.first_name().captalize(),
+                g.last_name().captalize()
+                )
 
         generator = ModelGenerator(MyModel, generators={
-            'full_name': full_name,
+            'company': company_name,
             })
 
         instance = generator()
