@@ -4,7 +4,7 @@ import decimal
 
 from django.db import models
 
-from perjury.django_generators import ModelGenerator
+from perjury.generators.django_models import ModelGenerator
 from perjury import generators as g
 
 
@@ -73,7 +73,6 @@ class TestModelGeneratorOptions(TestCase):
 
     def test_exclude_param(self):
         generator = ModelGenerator(self.Model, exclude=('field2',))
-        print generator.generators
 
         instance = generator()
 
