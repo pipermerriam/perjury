@@ -1,6 +1,6 @@
 from django.db import models
 
-from perjury import generators
+from perjury import generators as g
 
 
 IGNORED_FIELDS = (models.AutoField, models.OneToOneField)
@@ -14,12 +14,16 @@ def get_generator_for_class(cls):
     """
     # TODO: make this extensible???
     class2generator_map = {
-            models.CharField: generators.words,
-            models.DateTimeField: generators.now,
+            models.CharField: g.words,
+            models.DateField: g.today,
+            models.DateTimeField: g.now,
+            models.DecimalField: g.decimal,
+            models.EmailField: g.email,
             models.ForeignKey: ForeignKeyGenerator,
-            models.IntegerField: generators.smallint,
-            models.TextField: generators.words,
-            models.EmailField: generators.email,
+            models.IntegerField: g.smallint,
+            models.TextField: g.words,
+            models.TimeField: g.timenow,
+            models.URLField: g.url,
             }
 
     try:
@@ -35,9 +39,9 @@ def guess_generator_by_name(name):
     """
     # TODO: make this extensible???
     name2generator_map = {
-            'first_name': generators.first_name,
-            'last_name': generators.last_name,
-            'username': generators.username,
+            'first_name': g.first_name,
+            'last_name': g.last_name,
+            'username': g.username,
             }
 
     return name2generator_map[name]
@@ -56,10 +60,13 @@ def get_generator_for_field(field):
         except IndexError:
             raise NotImplementedError('Unknown field type: {0}'.format(field))
 
-    if type(cls) is type and issubclass(cls, FieldGenerator):
-        return cls(field)
-    else:
-        return cls
+    try:
+        if issubclass(cls, FieldGenerator):
+            return cls(field)
+    except TypeError:
+        pass
+
+    return cls
 
 
 def introspect_fields(fields):
@@ -75,7 +82,7 @@ def introspect_fields(fields):
     return generators
 
 
-class ModelGenerator(generators.Generator):
+class ModelGenerator(g.Generator):
     """
     Takes a model and creates a generator that will return instances of the
     model that have the data filled in.::
@@ -187,7 +194,7 @@ class ModelGenerator(generators.Generator):
         return kwargs
 
 
-class FieldGenerator(generators.Generator):
+class FieldGenerator(g.Generator):
     """
     BaseClass for type checking.  Expects to have a field object passed into
     :method:`__init__`.

@@ -1,5 +1,6 @@
 import random
 import datetime
+from decimal import Decimal
 
 from perjury.content import (LAST_NAMES, FIRST_NAMES, WORD_LIST, USERNAMES)
 
@@ -20,8 +21,14 @@ def smallint():
     return random.randint(1, 10)
 
 
+def decimal():
+    return Decimal(random.randrange(1000) / 100)
+
+
 # TODO: timezone aware?
 now = datetime.datetime.now
+today = datetime.date.today
+timenow = datetime.time
 
 word = Choice(choices=WORD_LIST)
 
@@ -37,3 +44,7 @@ username = Choice(choices=USERNAMES)
 
 def email():
     return '{0}@example.com'.format(username())
+
+
+def url():
+    return 'http://{0}.com'.format(username())
