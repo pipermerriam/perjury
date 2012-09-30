@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-__doc__="""
+__doc__ = """
 Falsify data
 """
 
@@ -18,6 +18,7 @@ setup(name='perjury',
     packages=find_packages(),
     platforms="any",
     license='BSD',
+    test_suite='tests',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Natural Language :: English',

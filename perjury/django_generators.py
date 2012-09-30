@@ -54,46 +54,26 @@ def get_generator_for_field(field):
         except IndexError:
             raise NotImplementedError('Unknown field type: {0}'.format(field))
 
-    if isinstance(cls, FieldGenerator):
+    if type(cls) is type and issubclass(cls, FieldGenerator):
         return cls(field)
     else:
         return cls
 
 
-def introspect_fields(fields, exclude=None):
+def introspect_fields(fields):
     """
-    For almost every field, figure out the appropriate dictionary and return a
-    dictionary of ``field.name`` goes to generator function.  It will skip
-    any field that is in the ``exclude`` parameter, that is an instance of
-    any class in ``IGNORED_FIELDS`` or that can be left empty.
+    For every field passed in, figure out the appropriate dictionary and return
+    a dictionary of ``field.name`` goes to generator function.
     """
-    if exclude is None:
-        exclude = tuple()
-
     generators = {}
 
     for field in fields:
-        if field.name in exclude:
-            continue
-
-        if isinstance(field, IGNORED_FIELDS) or field.blank or field.null:
-            continue
-
-        print field.name, field.model
-
         generators[field.name] = get_generator_for_field(field)
 
     return generators
 
 
-class FieldGenerator(generators.Generator):
-    """
-    BaseClass for type checking.
-    """
-    pass
-
-
-class ModelGenerator(FieldGenerator):
+class ModelGenerator(generators.Generator):
     """
     Takes a model and creates a generator that will return instances of the
     model that have the data filled in.::
@@ -122,8 +102,11 @@ class ModelGenerator(FieldGenerator):
 
         instance = generator()
 
-    Like ModelForm, if you wish to specify only the fields to generate, you can
-    pass in the ``fields`` parameter.::
+    :class:`ModelGenerator` will by default skip any field that is in the
+    ``exclude`` parameter, that is an instance of any class in
+    ``IGNORED_FIELDS`` or that can be left empty.  Like ModelForm, if you wish
+    to specify only the fields to generate, you can pass in the ``fields``
+    parameter.::
 
         from perjury.django_generators import ModelGenerator
 
@@ -147,7 +130,7 @@ class ModelGenerator(FieldGenerator):
         user.save()
 
     """
-    def __init__(self, model, generators=None, fields=None, exclude=None):
+    def __init__(self, model, generators=None, fields=None, exclude=tuple()):
         self.model = model
 
         fields_to_be_introspected = model._meta.fields
@@ -155,12 +138,21 @@ class ModelGenerator(FieldGenerator):
         # Limit fields to those that were specified.  ``fields`` is a list of
         # strings, we need to get the fields that correspond to those strings.
         if fields:
-            fields_to_be_introspected = filter(
-                    lambda field: field.name in fields,
-                    fields_to_be_introspected
-                    )
+            def check(field):
+                return field.name in fields
+        else:
+            def check(field): # NOQA
+                if field.name in exclude:
+                    return False
+                elif isinstance(field, IGNORED_FIELDS) or \
+                     field.blank or \
+                     field.null:
+                    return False
+                return True
 
-        self.generators = introspect_fields(fields_to_be_introspected, exclude)
+        fields_to_be_introspected = filter(check, fields_to_be_introspected)
+
+        self.generators = introspect_fields(fields_to_be_introspected)
 
         if generators:
             self.generators.update(generators)
@@ -178,6 +170,10 @@ class ModelGenerator(FieldGenerator):
         return instance
 
     def build_model_kwargs(self):
+        """
+        Builds a dictionary of field name goes to generated datum.  Exposed in
+        case you need it for other purposes.
+        """
         kwargs = {}
 
         for key, generator in self.generators.iteritems():
@@ -186,7 +182,15 @@ class ModelGenerator(FieldGenerator):
         return kwargs
 
 
-class ForeignKeyGenerator(ModelGenerator):
+class FieldGenerator(generators.Generator):
+    """
+    BaseClass for type checking.  Expects to have a field object passed into
+    :method:`__init__`.
+    """
+    pass
+
+
+class ForeignKeyGenerator(ModelGenerator, FieldGenerator):
     def __init__(self, field, *args, **kwargs):
         model = field.rel.to
 
