@@ -1,6 +1,7 @@
 import random
 import datetime
 from decimal import Decimal
+import itertools
 
 from perjury.content import (LAST_NAMES, FIRST_NAMES, WORD_LIST, USERNAMES)
 
@@ -15,6 +16,12 @@ class Choice(Generator):
 
     def __call__(self):
         return random.choice(self.choices)
+
+
+# TODO: this is not a class, but it sort of acts like one.  Should it have a
+# capital name?
+def Repeat(value):
+    return itertools.repeat(value).next
 
 
 def smallint():
