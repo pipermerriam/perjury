@@ -6,6 +6,6 @@ python:
 # command to install dependencies
 install:
   - "pip install . --use-mirrors"
-  - "pip install reqirements.txt --use-mirrors"
+  - "pip install -r reqirements.txt --use-mirrors"
 # command to run tests
 script: nosetests
