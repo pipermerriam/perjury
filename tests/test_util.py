@@ -26,8 +26,7 @@ class TestUniqueDecorator(TestCase):
         generator()
         generator()
 
-        with self.assertRaises(UniqueValueTimeoutError):
-            generator()
+        self.assertRaises(UniqueValueTimeoutError, generator)
 
 
 class TestIterableUtils(TestCase):
