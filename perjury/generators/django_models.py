@@ -87,7 +87,7 @@ class ModelGenerator(g.Generator):
     Takes a model and creates a generator that will return instances of the
     model that have the data filled in.::
 
-        from perjury.django_models import ModelGenerator
+        from perjury.generators.django_models import ModelGenerator
 
         generator = ModelGenerator(MyModel)
 
@@ -99,7 +99,7 @@ class ModelGenerator(g.Generator):
     field, you may override it with by passing a dictionary of field name goes
     to callable in as the ``generators`` parameter.::
 
-        from perjury.django_models import ModelGenerator
+        from perjury.generators.django_models import ModelGenerator
         from perjury import generators as g
 
         def company_name():
@@ -133,7 +133,7 @@ class ModelGenerator(g.Generator):
     If you don't wish for a field to have data generated for it, you can pass
     that in the ``exclude`` parameter.::
 
-        from perjury.django_models import ModelGenerator
+        from perjury.generators.django_models import ModelGenerator
 
         generator = ModelGenerator(User, exclude=('password',))
 
