@@ -161,7 +161,7 @@ Functionally::
     import itertools
 
     from perjury.generators import username, weighted_choice
-    from perjury.util import concat, unique
+    from perjury.util import unique
 
     unique_username = unique(username)
 
@@ -169,7 +169,7 @@ Functionally::
         user = User(
             username=unique_username(),
             is_active=weighted_choice({True: 1, False: 3}),
-            is_superuser=concat([True], itertools.repeat(False))
+            is_superuser=itertools.chain([True], itertools.repeat(False))
             )
         user.set_password('password')
 
@@ -178,7 +178,6 @@ Class-Based::
     import itertools
 
     from perjury.generators import BaseGenerator, username, weighted_choice
-    from perjury.util import concat
 
     class UserGenerator(BaseGenerator):
         unique = True
@@ -188,7 +187,7 @@ Class-Based::
             user = User(
                 username=username(),
                 is_active=weighted_choice({True: 1, False: 3}),
-                is_superuser=concat([True], itertools.repeat(False))
+                is_superuser=itertools.chain([True], itertools.repeat(False))
                 )
 
 Perjury does its best to both provide a very broad set of tools, and ensure
