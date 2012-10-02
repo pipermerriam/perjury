@@ -1,10 +1,10 @@
 Base Module
 ===========
 
-``foundry.base`` declares base generator classes used to constuct more useful generators.
+``perjury.base`` declares base generator classes used to constuct more useful generators.
 
 Generators
 ----------
 
-.. automodule:: foundry.base
+.. automodule:: perjury.base
     :members: BaseGenerator, WordGenerator, MultiGenerator, RepeatValueGenerator, IntegerGenerator

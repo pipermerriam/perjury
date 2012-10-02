@@ -1,108 +1,61 @@
-import unittest
-import re
+from unittest import TestCase
+import random
 
-from foundry.generators import (WordGenerator, FirstNameGenerator,
-        MaleNameGenerator, FemaleNameGenerator, LastNameGenerator,
-        FullNameGenerator, SingleLineTextGenerator, TitleGenerator,
-        RepeatValueGenerator, RandomIntegerGenerator, OrderedIntegerGenerator,
-        TrueGenerator, FalseGenerator, RandomBooleanGenerator,
-        GmailAddressGenerator)
+from perjury.generators import BaseGenerator
 
 
-class TestNameGenerators(unittest.TestCase):
+class TestBasicBaseGenerator(TestCase):
     def setUp(self):
-        self.names = ['joe', 'jim', 'john']
+        class TestGenerator(BaseGenerator):
+            def generator(self):
+                i = 0
+                while True:
+                    yield i
+                    i += 1
+        self.generator_class = TestGenerator
 
-    def test_base_name_generator_custom_length(self):
-        class BasicWordGenerator(WordGenerator):
-            shuffle = False
-            words = self.names
-        g = BasicWordGenerator()
-        names = [g.next() for i in range(2)]
-        self.assertEqual(names, self.names[:2])
-
-    def test_name_generator_classes(self):
-        for NameGeneratorClass in [FirstNameGenerator, MaleNameGenerator,
-                FemaleNameGenerator, LastNameGenerator]:
-            g = NameGeneratorClass()
-            self.do_assertions(g)
-
-    def do_assertions(self, generator):
-        for i in range(100):
-            name = generator.next()
-            self.assertIn(name, generator.words)
+    def test_callable_generation(self):
+        generator = self.generator_class()
+        while True:
+            if generator() > 20:
+                break
 
 
-class TestRepeatValueGenerator(unittest.TestCase):
-    def test_returns_same_value(self):
-        g = RepeatValueGenerator(value='arst')
-        for i in range(20):
-            self.assertEqual(g.next(), 'arst')
+class TestGeneratorUniqueness(TestCase):
+    def setUp(self):
+        class TestGenerator(BaseGenerator):
+            def generator(self):
+                while True:
+                    yield random.randint(0, 1000)
+        self.generator_class = TestGenerator
+
+    def test_unique_values(self):
+        generator = self.generator_class()
+        values = set()
+        for i in range(1000):
+            value = generator()
+            self.assertNotIn(value, values)
+            values.add(value)
 
 
-class TestSingleLineTextGenerator(unittest.TestCase):
-    def test_single_line_text_generator(self):
-        g = SingleLineTextGenerator()
-        for i in range(100):
-            line = g.next()
-            self.assertTrue(len(line) >= g.min_length, "{0} is not greater than {1}".format(len(line), g.min_length))
-            self.assertTrue(len(line) <= g.max_length, "{0} is not less than {1}".format(len(line), g.min_length))
-
-
-class TestTitleGenerator(unittest.TestCase):
-    def test_base_title_generator(self):
-        g = TitleGenerator()
-        for i in range(100):
-            title = g.next()
-            self.assertEqual(title[0].upper(), title[0])
-            self.assertEqual(title[1:].lower(), title[1:])
-
-
-class IntegerGeneratorTest(unittest.TestCase):
-    def test_basic_generator(self):
-        g = RandomIntegerGenerator()
-        for i in range(100):
-            i = g.next()
-            self.assertGreaterEqual(i, g.lower_bound)
-            self.assertLessEqual(i, g.upper_bound)
-
-    def test_ordered_generator(self):
-        class TestGenerator(OrderedIntegerGenerator):
-            lower_bound = 0
-            upper_bound = 20
-
-        g = TestGenerator()
-        for i in range(100):
-            j = g.next()
-            self.assertEqual(i % 20, j)
-
-
-class TrueGeneratorTest(unittest.TestCase):
-    def test_basic_generator(self):
-        g = TrueGenerator()
-        self.assertTrue(all([g.next() for i in range(20)]))
-
-
-class FalseGeneratorTest(unittest.TestCase):
-    def test_basic_generator(self):
-        g = FalseGenerator()
-        self.assertTrue(all([not g.next() for i in range(20)]))
-
-
-class BooleanGeneratorTest(unittest.TestCase):
-    def test_basic_generator(self):
-        g = RandomBooleanGenerator()
-        self.assertTrue(all([g.next() in g.values for i in range(20)]))
-
-
-class GmailAddressGeneratorTest(unittest.TestCase):
-    is_gmail_address = re.compile(r'^[_.0-9a-z-]+@gmail\.com$')
-
-    def test_basic_generator(self):
-        g = GmailAddressGenerator()
-        for e in range(20):
-            self.assertTrue(self.is_gmail_address.match(g.next()))
-
-
-if __name__ == '__main__':
-    unittest.main()
+#class TestDecimalGenerator(TestCase):
+#    def setUp(self):
+#        class TestGenerator(DecimalGenerator):
+#            upper_bound = 10
+#            lower_bound = 0
+#            precision = 5
+#        self.generator_class = TestGenerator
+#
+#    def test_in_bounds(self):
+#        generator = self.generator_class()
+#        for i in range(100):
+#            d = generator()
+#            self.assertLessEqual(d, self.generator_class.upper_bound)
+#            self.assertGreaterEqual(d, self.generator_class.lower_bound)
+#
+#    def test_precision(self):
+#        generator = self.generator_class()
+#        t = Decimal(("0.{0:0" + str(generator.precision) + "}").format(0))
+#        for i in range(100):
+#            d = generator()
+#            self.assertEqual(d, d.quantize(t))

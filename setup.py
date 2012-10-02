@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
 
-__doc__="""
-Content generators for python
+__doc__ = """
+Falsify data
 """
 
 version = '0.0.1'
 
-setup(name='foundry',
+setup(name='perjury',
     version=version,
-    description='Content generators for Python',
+    description=__doc__,
     author='Aaron Merriam',
     author_email='aaronmerriam@gmail.com',
     keywords='content',
@@ -18,6 +18,7 @@ setup(name='foundry',
     packages=find_packages(),
     platforms="any",
     license='BSD',
+    test_suite='tests',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Natural Language :: English',
