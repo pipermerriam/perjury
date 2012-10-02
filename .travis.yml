@@ -5,7 +5,7 @@ python:
   - "3.2"
 # command to install dependencies
 install:
-  - "pip install . --use-mirrors"
-  - "pip install -r reqirements.txt --use-mirrors"
+  - "pip install ."
+  - "pip install -r doc/reqirements.txt"
 # command to run tests
 script: nosetests
