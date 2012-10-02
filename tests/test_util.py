@@ -16,7 +16,7 @@ class TestUniqueDecorator(TestCase):
             seen = set()
             for i in xrange(400):
                 username = unique_username()
-                self.assertNotIn(username, seen)
+                assert username not in seen
                 seen.add(username)
 
     def test_overflow(self):
@@ -26,8 +26,7 @@ class TestUniqueDecorator(TestCase):
         generator()
         generator()
 
-        with self.assertRaises(UniqueValueTimeoutError):
-            generator()
+        self.assertRaises(UniqueValueTimeoutError, generator)
 
 
 class TestIterableUtils(TestCase):
@@ -60,7 +59,7 @@ class TestIterableUtils(TestCase):
             count = 0
             for username in many_unique_usernames:
                 count += 1
-                self.assertNotIn(username, seen)
+                assert username not in seen
                 seen.add(username)
 
             assert count == 400
