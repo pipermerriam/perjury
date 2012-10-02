@@ -2,6 +2,7 @@ import random
 import datetime
 from decimal import Decimal
 import itertools
+import collections
 
 from perjury.content import (LAST_NAMES, FIRST_NAMES, WORD_LIST, USERNAMES)
 
@@ -12,12 +13,37 @@ class Generator(object):
     pass
 
 
+# TODO: unique choice generator?  __unique__ magic method?
 class Choice(Generator):
+    """
+    :class:`Choice` is a generator that is initialized with choices and will
+    randomly return one of those choices when called.
+    """
+
     def __init__(self, choices):
         self.choices = choices
 
     def __call__(self):
         return random.choice(self.choices)
+
+
+def weighted_choice(choices):
+    """
+    :func:`weighted_choice` will take a dictionary of value goes to weight and
+    will return a Choice generator for you. For example, if you defined and
+    ``is_active`` generator like this::
+
+        is_active = weighted_choice({
+            True: 1,
+            False: 3,
+            })
+
+
+    Statistically speaking, you would get 1 True for every 3 Falses.
+    """
+    counter = collections.Counter(choices)
+
+    return Choice(choices=counter.elements())
 
 
 # TODO: this is not a class, but it sort of acts like one.  Should it have a
