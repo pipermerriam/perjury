@@ -34,7 +34,7 @@ class TestGeneratorUniqueness(TestCase):
         values = set()
         for i in range(1000):
             value = generator()
-            self.assertNotIn(value, values)
+            assert value not in values
             values.add(value)
 
 
