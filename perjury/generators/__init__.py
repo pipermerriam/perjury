@@ -5,6 +5,7 @@ import itertools
 import collections
 
 from perjury.content import (LAST_NAMES, FIRST_NAMES, WORD_LIST, USERNAMES)
+from perjury.generators.datetime_generators import DatetimeGenerator
 
 from perjury.generators.base import * # NOQA
 
@@ -83,3 +84,17 @@ def email():
 
 def url():
     return 'http://{0}.com'.format(username())
+
+
+# How do we allow users to determine their own now function
+
+class CurrentDatetimeGenerator(DatetimeGenerator):
+    def end_at(self):
+        return datetime.datetime.now() + datetime.timedelta(30)
+
+    def start_at(self):
+        return datetime.datetime.now() - datetime.timedelta(30)
+
+
+current_datetime = CurrentDatetimeGenerator()
+datetime_generator = DatetimeGenerator()

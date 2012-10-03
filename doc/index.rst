@@ -15,6 +15,7 @@ Contents:
    :maxdepth: 2
 
    getting_started
+   date_and_time
    base
    generators
 
