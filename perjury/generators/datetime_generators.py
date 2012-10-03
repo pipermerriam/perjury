@@ -14,7 +14,7 @@ def datetime_in_range(start_at, end_at):
     Generates a random datetime between start and end datetime values.
     """
     td = end_at - start_at
-    seconds = int(td.total_seconds())
+    seconds = int(total_seconds(td))
     return start_at + datetime.timedelta(seconds=random.randrange(seconds))
 
 
