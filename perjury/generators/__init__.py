@@ -77,6 +77,8 @@ first_name = Choice(choices=FIRST_NAMES)
 last_name = Choice(choices=LAST_NAMES)
 username = Choice(choices=USERNAMES)
 
+truthy = itertools.repeat(True).next
+
 
 def email():
     return '{0}@example.com'.format(username())
