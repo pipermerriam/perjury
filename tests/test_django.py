@@ -43,9 +43,11 @@ class TestModelGeneratorOptions(TestCase):
         """
         By default only generate those fields that are required.
         """
-        generator = ModelGenerator(self.Model)
+        class TestGenerator(ModelGenerator):
+            class Meta:
+                model = self.Model
 
-        instance = generator()
+        instance = TestGenerator()()
 
         assert instance.field1
         # TODO: this is not future-proof is it?
@@ -61,34 +63,38 @@ class TestModelGeneratorOptions(TestCase):
         """
         If fields is passed in, should only generate those fields enumerated.
         """
-        generator = ModelGenerator(self.Model, fields=('field1', 'field3'))
+        class TestGenerator(ModelGenerator):
+            class Meta:
+                model = self.Model
+                fields = ('field1', 'field2')
 
-        instance = generator()
-
-        assert instance.field1
-        assert instance.field3
-
-        assert not instance.field2
-        assert not instance.field4
-
-    def test_exclude_param(self):
-        generator = ModelGenerator(self.Model, exclude=('field2',))
-
-        instance = generator()
+        instance = TestGenerator()()
 
         assert instance.field1
+        assert instance.field2
 
-        assert not instance.field2
         assert not instance.field3
         assert not instance.field4
 
-    def test_override_generators(self):
-        generator = ModelGenerator(self.Model, generators={
-            'field2': g.email,
-            'field3': g.smallint,
-            })
+    def test_exclude_param(self):
+        class TestGenerator(ModelGenerator):
+            class Meta:
+                model = self.Model
+                exclude = ('field2',)
 
-        instance = generator()
+        instance = TestGenerator()()
+
+        assert not instance.field2
+
+    def test_override_generators(self):
+        class TestGenerator(ModelGenerator):
+            field2 = g.email
+            field3 = g.smallint
+
+            class Meta:
+                model = self.Model
+
+        instance = TestGenerator()()
 
         assert '@example.com' in instance.field2
 
@@ -99,9 +105,11 @@ class TestFieldMatching(TestCase):
     Model = ModelWithLotsOfFields
 
     def test_builtin_field_types(self):
-        generator = ModelGenerator(self.Model)
+        class TestGenerator(ModelGenerator):
+            class Meta:
+                model = self.Model
 
-        instance = generator()
+        instance = TestGenerator()()
 
         assert instance.boolean in (True, False)
         assert isinstance(instance.string, basestring)
@@ -117,8 +125,10 @@ class TestFieldMatching(TestCase):
         assert 'http' in instance.url
 
     def test_custom_field_types(self):
-        generator = ModelGenerator(self.Model)
+        class TestGenerator(ModelGenerator):
+            class Meta:
+                model = self.Model
 
-        instance = generator()
+        instance = TestGenerator()
 
         assert isinstance(instance.custom, basestring)
