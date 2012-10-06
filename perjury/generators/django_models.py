@@ -94,6 +94,8 @@ class ModelGeneratorMetaclass(type):
             # If fields were explicitely declared, get those fields from
             # `model._meta.fields`
             for field in opts.model._meta.fields:
+                if hasattr(new_class, field.attname):
+                    continue
                 if field.attname in opts.fields:
                     fields.append(field)
 
