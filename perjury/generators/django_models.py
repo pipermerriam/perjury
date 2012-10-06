@@ -51,14 +51,10 @@ def guess_generator_by_name(name):
 
 
 class ModelGeneratorOptions(object):
-    fields = None
-    exclude = []
-    model = []
-
     def __init__(self, meta):
-        self.model = getattr(meta, 'model')
+        self.model = getattr(meta, 'model', None)
         self.fields = getattr(meta, 'fields', None)
-        self.exclude = getattr(meta, 'exclude', [])
+        self.exclude = getattr(meta, 'exclude', None)
 
 
 class ModelGeneratorMetaclass(type):
@@ -77,19 +73,20 @@ class ModelGeneratorMetaclass(type):
         if parents is None:
             return new_class
 
-        opts = new_class._meta = ModelGeneratorOptions(getattr(new_class, 'Meta'))
+        opts = new_class._meta = ModelGeneratorOptions(getattr(new_class, 'Meta', None))
         fields = []
         if opts.fields is None:
-            opts.fields = []
+            # If opts fields is None, do all the fields we can.
+            # - No: (in exclude), (
+            #
             for field in opts.model._meta.fields:
-                if field.attname in opts.exclude:
+                if opts.exclude is not None and field.attname in opts.exclude:
                     continue
                 elif hasattr(new_class, field.attname):
-                    opts.fields.append(field.attname)
+                    continue
                 elif type(field) in IGNORED_FIELDS:
                     continue
                 fields.append(field)
-                opts.fields.append(field.attname)
         else:
             # If fields were explicitely declared, get those fields from
             # `model._meta.fields`
@@ -99,9 +96,11 @@ class ModelGeneratorMetaclass(type):
                 if field.attname in opts.fields:
                     fields.append(field)
 
+        generators = {}
         for field in fields:
-            generator = staticmethod(get_generator_for_class(type(field)))
-            setattr(new_class, field.attname, generator)
+            generator = get_generator_for_class(type(field))
+            generators[field.attname] = generator
+        new_class.generators = generators
         return new_class
 
 
@@ -110,8 +109,8 @@ class ModelGenerator(g.BaseGenerator):
 
     def generator(self):
         kwargs = {}
-        for attr in self._meta.fields:
-            kwargs[attr] = getattr(self, attr)()
+        for key, generator in self.generators.iteritems():
+            kwargs[key] = generator()
         return self._meta.model(**kwargs)
             
 
