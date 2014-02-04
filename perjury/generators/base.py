@@ -2,8 +2,9 @@ class BaseResource(object):
     """
     Base class for all foundry generator classes.
     """
-    def __init__(self, generator):
-        self.generator = iter(generator)
+    @property
+    def generator(self):
+        raise AttributeError('Resources must have a `generator`')
 
     def next(self):
         return next(self.generator)
@@ -15,32 +16,37 @@ class BaseResource(object):
         while True:
             yield next(self)
 
+    def __mul__(self, other):
+        return [next(self) for i in xrange(other)]
 
-class CombinedResource(object):
+
+class SimpleResource(BaseResource):
+    generator = None
+
+    def __init__(self, generator):
+        self.generator = iter(generator)
+
+
+class CombinedResource(BaseResource):
     def __init__(self, *args, **kwargs):
         self.positional_generators = args
         self.named_generators = kwargs
 
+    @property
+    def generator(self):
+        while True:
+            yield self.combine_values(
+                *(
+                    g() for g in self.positional_generators
+                ),
+                **dict(
+                    (k, v()) for k, v in self.named_generators.iteritems()
+                )
+            )
+
     def combine_values(self, *args, **kwargs):
         raise NotImplemented('Subclasses must implement the `combine_values` '
                              'method')
-
-    def next(self):
-        return self.combine_values(
-            *(
-                g() for g in self.positional_generators
-            ),
-            **dict(
-                (k, v()) for k, v in self.named_generators.iteritems()
-            )
-        )
-
-    def __call__(self):
-        return next(self)
-
-    def __iter__(self):
-        while True:
-            yield next(self)
 
 
 class FormattedStringResource():
