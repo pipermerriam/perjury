@@ -36,6 +36,15 @@ class ModelWithLotsOfFields(models.Model):
     custom = CustomCharField()
 
 
+class ChoiceFieldModel(models.Model):
+    COLOR_CHOICES = (
+        ('green', 'Green'),
+        ('blue', 'Blue'),
+        ('orange', 'Orange'),
+    )
+    color = models.CharField(max_length=255, choices=COLOR_CHOICES)
+
+
 class TestModelGeneratorOptions(TestCase):
     Model = SimpleModel
 
@@ -122,3 +131,13 @@ class TestFieldMatching(TestCase):
         instance = generator()
 
         assert isinstance(instance.custom, basestring)
+
+
+class TestChoiceField(TestCase):
+    def test_choice_field(self):
+        generator = ModelGenerator(ChoiceFieldModel)
+        choices = [choice[0] for choice in ChoiceFieldModel.COLOR_CHOICES]
+
+        for i in range(1, 1000):
+            instance = generator()
+            assert instance.color in choices
