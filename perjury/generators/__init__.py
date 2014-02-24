@@ -3,6 +3,7 @@ import datetime
 from decimal import Decimal
 import itertools
 import collections
+from functools import partial
 
 from perjury.content import (LAST_NAMES, FIRST_NAMES, WORD_LIST, USERNAMES)
 from perjury.generators.datetime_generators import DatetimeGenerator
@@ -98,3 +99,20 @@ class CurrentDatetimeGenerator(DatetimeGenerator):
 
 current_datetime = CurrentDatetimeGenerator()
 datetime_generator = DatetimeGenerator()
+
+
+def sequence(start=1, incr=1):
+    """
+    Returns a Python generator that yields incrementing numbers forever.
+    """
+    while True:
+        yield start
+        start += incr
+
+
+def consumer(iterable):
+    """
+    Takes a Python iterable and returns a perjury generator that
+    will spit out an iteration every time called.
+    """
+    return partial(next, iter(iterable))

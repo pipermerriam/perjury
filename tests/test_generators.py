@@ -1,7 +1,7 @@
 from unittest import TestCase
 import random
 
-from perjury.generators import BaseGenerator
+from perjury.generators import BaseGenerator, sequence, consumer
 
 
 class TestBasicBaseGenerator(TestCase):
@@ -36,6 +36,44 @@ class TestGeneratorUniqueness(TestCase):
             value = generator()
             assert value not in values
             values.add(value)
+
+
+class TestConsumer(TestCase):
+    def test_consumer(self):
+        generator = consumer([1, 2, 3])
+        self.assertEqual(generator(), 1)
+        self.assertEqual(generator(), 2)
+        self.assertEqual(generator(), 3)
+
+    def test_consumer_error(self):
+        generator = consumer([1])
+        self.assertEqual(generator(), 1)
+
+        self.assertRaises(StopIteration, generator)
+
+
+class TestSequence(TestCase):
+    def test_sequence(self):
+        generator = consumer(sequence())
+        self.assertEqual(generator(), 1)
+        self.assertEqual(generator(), 2)
+        self.assertEqual(generator(), 3)
+        self.assertEqual(generator(), 4)
+        self.assertEqual(generator(), 5)
+        self.assertEqual(generator(), 6)
+
+    def test_sequence_start(self):
+        generator = consumer(sequence(start=5))
+        self.assertEqual(generator(), 5)
+        self.assertEqual(generator(), 6)
+        self.assertEqual(generator(), 7)
+        self.assertEqual(generator(), 8)
+
+    def test_sequence_incr(self):
+        generator = consumer(sequence(start=5, incr=-5))
+        self.assertEqual(generator(), 5)
+        self.assertEqual(generator(), 0)
+        self.assertEqual(generator(), -5)
 
 
 #class TestDecimalGenerator(TestCase):
