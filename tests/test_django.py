@@ -21,7 +21,7 @@ class SimpleModel(models.Model):
 
 
 class ModelWithLotsOfFields(models.Model):
-    boolean = models.BooleanField()
+    boolean = models.BooleanField(default=False)
     string = models.CharField(max_length=255)
     date = models.DateField()
     datetime = models.DateTimeField()
