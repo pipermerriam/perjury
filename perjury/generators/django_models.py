@@ -52,19 +52,22 @@ def get_generator_for_field(field):
     Tries to figure out which generator to based on a Field instance.  If it
     cannot, it will raise a :class:`NotImplementedError`.
     """
-    try:
-        cls = guess_generator_by_name(field.name)
-    except KeyError:
+    if field.choices:
+        cls = g.Choice([choice[0] for choice in field.choices])
+    else:
         try:
-            cls = get_generator_for_class(type(field))
-        except IndexError:
-            raise NotImplementedError('Unknown field type: {0}'.format(field))
+            cls = guess_generator_by_name(field.name)
+        except KeyError:
+            try:
+                cls = get_generator_for_class(type(field))
+            except IndexError:
+                raise NotImplementedError('Unknown field type: {0}'.format(field))
 
-    try:
-        if issubclass(cls, FieldGenerator):
-            return cls(field)
-    except TypeError:
-        pass
+        try:
+            if issubclass(cls, FieldGenerator):
+                return cls(field)
+        except TypeError:
+            pass
 
     return cls
 
