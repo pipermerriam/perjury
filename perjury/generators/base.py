@@ -1,3 +1,6 @@
+import random
+
+
 class BaseResource(object):
     """
     Base class for all foundry generator classes.
@@ -23,8 +26,9 @@ class BaseResource(object):
 class SimpleResource(BaseResource):
     generator = None
 
-    def __init__(self, generator):
-        self.generator = iter(generator)
+    def __init__(self, source, shuffle=True):
+        self.source = source
+        self.generator = iter(source)
 
 
 class CombinedResource(BaseResource):
@@ -49,7 +53,7 @@ class CombinedResource(BaseResource):
                              'method')
 
 
-class FormattedStringResource():
+class FormattedStringResource(CombinedResource):
     template = None
 
     def combine_values(self, *args, **kwargs):
